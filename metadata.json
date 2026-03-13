@@ -1,0 +1,5 @@
+{
+  "name": "Ajwa Global - Smart Venue & Birthday Experience",
+  "description": "A premium, AI-driven restaurant and event booking platform with QR table ordering and a real-time kitchen display system.",
+  "requestFramePermissions": ["geolocation"]
+}

@@ -1,0 +1,33 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400&family=DM+Sans:wght@400;500&display=swap');
+@import "tailwindcss";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-serif: "Playfair Display", ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
+  --font-body: "DM Sans", sans-serif;
+
+  --color-sage: #A8E6CF;
+  --color-cream: #FAFAFA;
+  --color-wood: #E6D5B8;
+}
+
+@layer base {
+  body {
+    @apply bg-white text-gray-900 font-body transition-colors duration-200;
+  }
+  .dark body {
+    @apply bg-gray-900 text-gray-100;
+  }
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-serif;
+  }
+}
+
+.glass {
+  @apply bg-white/70 backdrop-blur-md border border-white/20;
+}
+.dark .glass {
+  @apply bg-gray-900/70 border-gray-800/50;
+}

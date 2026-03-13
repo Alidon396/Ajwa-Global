@@ -1,0 +1,128 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ===============================================================
+    // Assumed Data Model
+    // ===============================================================
+    //
+    // Collection: orders
+    // Document ID: auto-generated
+    // Fields:
+    //   - table: string (required) - Table number
+    //   - items: list (required) - Array of {name: string, quantity: number, price: number}
+    //   - status: string (required) - Enum: ['pending', 'preparing', 'done']
+    //   - timestamp: timestamp (required) - Order creation time
+    //   - total: number (required) - Total price
+    //   - userId: string (optional) - User ID of the customer
+    //
+    // Collection: inquiries
+    // Document ID: auto-generated
+    // Fields:
+    //   - name: string (required) - Customer name
+    //   - phone: string (required) - Customer phone
+    //   - date: string (required) - Preferred event date
+    //   - guestCount: number (required) - Number of guests
+    //   - timestamp: timestamp (required) - Inquiry submission time
+    //
+    // Collection: users
+    // Document ID: userId
+    // Fields:
+    //   - role: string (required) - Enum: ['customer', 'admin']
+    //   - email: string (required) - User email
+    //   - createdAt: timestamp (required) - Account creation time
+    //
+    // ===============================================================
+
+    // ===============================================================
+    // Helper Functions
+    // ===============================================================
+    
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isAdmin() {
+      return isAuthenticated() &&
+        (get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin' ||
+          (request.auth.token.email == "allidon591@gmail.com" && request.auth.token.email_verified == true));
+    }
+
+    function hasRequiredFields(fields) {
+      return request.resource.data.keys().hasAll(fields);
+    }
+
+    function hasOnlyAllowedFields(fields) {
+      return request.resource.data.keys().hasOnly(fields);
+    }
+
+    function isValidOrder(data) {
+      return hasRequiredFields(['table', 'items', 'status', 'timestamp', 'total', 'paymentType', 'orderType']) &&
+             data.table is string && data.table.size() > 0 && data.table.size() < 20 &&
+             data.items is list && data.items.size() > 0 && data.items.size() < 50 &&
+             data.status in ['pending', 'preparing', 'done'] &&
+             data.timestamp is timestamp &&
+             data.total is number && data.total >= 0 &&
+             data.paymentType in ['prepaid', 'postpaid'] &&
+             data.orderType in ['dine-in', 'takeaway', 'delivery'] &&
+             (!('userId' in data) || data.userId == null || (data.userId is string && data.userId.size() < 50));
+    }
+
+    function isValidInquiry(data) {
+      return hasRequiredFields(['name', 'phone', 'date', 'guestCount', 'timestamp']) &&
+             data.name is string && data.name.size() > 0 && data.name.size() < 100 &&
+             data.phone is string && data.phone.size() > 0 && data.phone.size() < 20 &&
+             data.date is string && data.date.size() > 0 && data.date.size() < 50 &&
+             data.guestCount is number && data.guestCount > 0 &&
+             data.timestamp is timestamp;
+    }
+
+    function isValidUser(data) {
+      return hasRequiredFields(['role', 'email', 'createdAt']) &&
+             data.role in ['customer', 'admin'] &&
+             data.email is string && data.email.size() > 0 && data.email.size() < 100 &&
+             data.createdAt is timestamp;
+    }
+
+    // ===============================================================
+    // Rules
+    // ===============================================================
+
+    // Orders Collection
+    match /orders/{orderId} {
+      // Customers can create orders (unauthenticated for QR simplicity as per PRD)
+      allow create: if isValidOrder(request.resource.data) && 
+                    (!('userId' in request.resource.data) || request.resource.data.userId == null || request.resource.data.userId == request.auth.uid);
+      
+      // Only staff/admin can read and update orders, or the user who created it
+      allow read: if isAdmin() || (isAuthenticated() && resource.data.userId == request.auth.uid);
+      allow update: if isAdmin();
+      
+      // No one can delete orders for audit purposes
+      allow delete: if false;
+    }
+
+    // Inquiries Collection
+    match /inquiries/{inquiryId} {
+      // Anyone can submit an inquiry
+      allow create: if isValidInquiry(request.resource.data);
+      
+      // Only admin can read/manage inquiries
+      allow read, update, delete: if isAdmin();
+    }
+
+    // Users Collection (for RBAC)
+    match /users/{userId} {
+      allow read: if isAuthenticated() && (request.auth.uid == userId || isAdmin());
+      allow create: if isAuthenticated() && request.auth.uid == userId && 
+                    isValidUser(request.resource.data) && 
+                    (request.resource.data.role == 'customer' || isAdmin());
+      allow update: if isAdmin();
+    }
+
+    // Default deny
+    match /{path=**} {
+      allow read, write: if false;
+    }
+  }
+}

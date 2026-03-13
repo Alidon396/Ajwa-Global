@@ -1,0 +1,72 @@
+{
+  "entities": {
+    "User": {
+      "title": "User",
+      "description": "A user of the application, either customer or admin.",
+      "type": "object",
+      "properties": {
+        "role": { "type": "string", "enum": ["customer", "admin"] },
+        "email": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["role", "email", "createdAt"]
+    },
+    "Order": {
+      "title": "Order",
+      "description": "A customer order from a specific table.",
+      "type": "object",
+      "properties": {
+        "table": { "type": "string", "description": "The table number." },
+        "items": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": { "type": "string" },
+              "quantity": { "type": "number" },
+              "price": { "type": "number" }
+            }
+          }
+        },
+        "status": { 
+          "type": "string", 
+          "enum": ["pending", "preparing", "done"],
+          "description": "The current status of the order."
+        },
+        "timestamp": { "type": "string", "format": "date-time" },
+        "total": { "type": "number" },
+        "userId": { "type": "string", "description": "Optional user ID if logged in." },
+        "paymentType": { "type": "string", "enum": ["prepaid", "postpaid"] },
+        "orderType": { "type": "string", "enum": ["dine-in", "takeaway", "delivery"] }
+      },
+      "required": ["table", "items", "status", "timestamp", "total", "paymentType", "orderType"]
+    },
+    "Inquiry": {
+      "title": "Inquiry",
+      "description": "A birthday or event inquiry lead captured by the AI.",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "phone": { "type": "string" },
+        "date": { "type": "string" },
+        "guestCount": { "type": "number" },
+        "timestamp": { "type": "string", "format": "date-time" }
+      },
+      "required": ["name", "phone", "date", "guestCount", "timestamp"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "User",
+      "description": "Collection of user profiles and roles."
+    },
+    "/orders/{orderId}": {
+      "schema": "Order",
+      "description": "Collection of active and past orders."
+    },
+    "/inquiries/{inquiryId}": {
+      "schema": "Inquiry",
+      "description": "Collection of event inquiries."
+    }
+  }
+}
