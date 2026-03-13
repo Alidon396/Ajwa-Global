@@ -6,8 +6,8 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Layout from './components/Layout';
 import LandingPage from './pages/LandingPage';
-import MenuPage from './pages/MenuPage';
-import KitchenDashboard from './pages/KitchenDashboard';
+import ProductsPage from './pages/ProductsPage';
+import LeadDashboard from './pages/LeadDashboard';
 import AuthPage from './pages/AuthPage';
 import ProfilePage from './pages/ProfilePage';
 import AIChat from './components/AIChat';
@@ -22,8 +22,8 @@ export default function App() {
           <Layout>
             <Routes>
               <Route path="/" element={<LandingPage />} />
-              <Route path="/menu" element={<MenuPage />} />
-              <Route path="/kitchen" element={<KitchenDashboard />} />
+              <Route path="/products" element={<ProductsPage />} />
+              <Route path="/leads" element={<LeadDashboard />} />
               <Route path="/login" element={<AuthPage />} />
               <Route path="/profile" element={<ProfilePage />} />
             </Routes>

@@ -16,6 +16,16 @@ service cloud.firestore {
     //   - total: number (required) - Total price
     //   - userId: string (optional) - User ID of the customer
     //
+    // Collection: rfqs
+    // Document ID: auto-generated
+    // Fields:
+    //   - items: list (required) - Array of {name: string, quantity: number, price: number}
+    //   - status: string (required) - Enum: ['pending', 'reviewing', 'quoted', 'closed']
+    //   - timestamp: timestamp (required) - RFQ creation time
+    //   - estimatedTotal: number (required) - Total price
+    //   - userId: string (optional) - User ID of the customer
+    //   - userEmail: string (optional) - User email
+    //
     // Collection: inquiries
     // Document ID: auto-generated
     // Fields:
@@ -56,6 +66,16 @@ service cloud.firestore {
       return request.resource.data.keys().hasOnly(fields);
     }
 
+    function isValidRFQ(data) {
+      return hasRequiredFields(['items', 'status', 'timestamp', 'estimatedTotal', 'userEmail']) &&
+             data.items is list && data.items.size() > 0 && data.items.size() < 50 &&
+             data.status in ['pending', 'reviewing', 'quoted', 'closed'] &&
+             data.timestamp is timestamp &&
+             data.estimatedTotal is number && data.estimatedTotal >= 0 &&
+             data.userEmail is string && data.userEmail.size() > 0 && data.userEmail.size() < 100 &&
+             (!('userId' in data) || data.userId == null || (data.userId is string && data.userId.size() < 50));
+    }
+
     function isValidOrder(data) {
       return hasRequiredFields(['table', 'items', 'status', 'timestamp', 'total', 'paymentType', 'orderType']) &&
              data.table is string && data.table.size() > 0 && data.table.size() < 20 &&
@@ -87,6 +107,20 @@ service cloud.firestore {
     // ===============================================================
     // Rules
     // ===============================================================
+
+    // RFQs Collection
+    match /rfqs/{rfqId} {
+      // Anyone can submit an RFQ
+      allow create: if isValidRFQ(request.resource.data) && 
+                    (!('userId' in request.resource.data) || request.resource.data.userId == null || request.resource.data.userId == request.auth.uid);
+      
+      // Only staff/admin can read and update RFQs, or the user who created it
+      allow read: if isAdmin() || (isAuthenticated() && resource.data.userId == request.auth.uid);
+      allow update: if isAdmin();
+      
+      // No one can delete RFQs for audit purposes
+      allow delete: if false;
+    }
 
     // Orders Collection
     match /orders/{orderId} {

@@ -1,59 +1,59 @@
-export interface MenuItem {
+export interface ProductItem {
   id: string;
   name: string;
   description: string;
   price: number;
-  category: 'Appetizers' | 'Mains' | 'Drinks' | 'Birthday Specials';
+  category: 'Premium Dates' | 'Standard Dates' | 'Bulk Packaging' | 'Specialty';
   image: string;
 }
 
-export const MENU_ITEMS: MenuItem[] = [
+export const PRODUCT_ITEMS: ProductItem[] = [
   {
     id: '1',
-    name: 'Truffle Arancini',
-    description: 'Crispy risotto balls with truffle oil and mozzarella.',
-    price: 12.99,
-    category: 'Appetizers',
-    image: 'https://images.unsplash.com/photo-1555939594-58d7cb561ad1?auto=format&fit=crop&q=80&w=800'
+    name: 'Ajwa Dates (Grade A)',
+    description: 'Premium quality, soft and dark Ajwa dates from Al Madinah. Rich in nutrients.',
+    price: 35.00, // Price per kg
+    category: 'Premium Dates',
+    image: 'https://images.unsplash.com/photo-1596431940176-7876274070a8?auto=format&fit=crop&q=80&w=800'
   },
   {
     id: '2',
-    name: 'Wagyu Beef Sliders',
-    description: 'Mini wagyu burgers with caramelized onions and brioche.',
-    price: 18.50,
-    category: 'Appetizers',
-    image: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&q=80&w=800'
+    name: 'Medjool Dates (Jumbo)',
+    description: 'Large, sweet, and caramel-like Medjool dates. Perfect for premium retail.',
+    price: 28.50,
+    category: 'Premium Dates',
+    image: 'https://images.unsplash.com/photo-1601314002592-b8734bca6604?auto=format&fit=crop&q=80&w=800'
   },
   {
     id: '3',
-    name: 'Pan-Seared Salmon',
-    description: 'Fresh salmon with asparagus and lemon butter sauce.',
-    price: 28.00,
-    category: 'Mains',
-    image: 'https://images.unsplash.com/photo-1467003909585-2f8a72700288?auto=format&fit=crop&q=80&w=800'
+    name: 'Sukkari Dates',
+    description: 'Golden, soft, and melt-in-the-mouth Sukkari dates. High demand in Middle East.',
+    price: 22.00,
+    category: 'Standard Dates',
+    image: 'https://images.unsplash.com/photo-1610832958506-aa56368176cf?auto=format&fit=crop&q=80&w=800'
   },
   {
     id: '4',
-    name: 'Wild Mushroom Risotto',
-    description: 'Creamy arborio rice with seasonal wild mushrooms.',
+    name: 'Mabroom Dates',
+    description: 'Chewy, elongated dates with a less sweet, rich flavor profile.',
     price: 24.00,
-    category: 'Mains',
-    image: 'https://images.unsplash.com/photo-1633337474564-1d9e96f17849?auto=format&fit=crop&q=80&w=800'
+    category: 'Standard Dates',
+    image: 'https://images.unsplash.com/photo-1582582494705-f8ce0b0c24f0?auto=format&fit=crop&q=80&w=800'
   },
   {
     id: '5',
-    name: 'Passionfruit Mocktail',
-    description: 'Refreshing blend of passionfruit, lime, and mint.',
-    price: 9.50,
-    category: 'Drinks',
-    image: 'https://images.unsplash.com/photo-1536935338788-846bb9981813?auto=format&fit=crop&q=80&w=800'
+    name: 'Mixed Dates (10kg Carton)',
+    description: 'Assorted dates packed in bulk for wholesale and distribution.',
+    price: 180.00,
+    category: 'Bulk Packaging',
+    image: 'https://images.unsplash.com/photo-1596431940176-7876274070a8?auto=format&fit=crop&q=80&w=800'
   },
   {
     id: '6',
-    name: 'Signature Birthday Cake',
-    description: 'Rich chocolate ganache with gold leaf finish.',
-    price: 45.00,
-    category: 'Birthday Specials',
-    image: 'https://images.unsplash.com/photo-1578985545062-69928b1d9587?auto=format&fit=crop&q=80&w=800'
+    name: 'Date Syrup (1L)',
+    description: '100% natural, cold-pressed date syrup. Excellent natural sweetener.',
+    price: 15.00,
+    category: 'Specialty',
+    image: 'https://images.unsplash.com/photo-1589301760014-d929f3979dbc?auto=format&fit=crop&q=80&w=800'
   }
 ];

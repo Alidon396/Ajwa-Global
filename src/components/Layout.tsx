@@ -1,6 +1,6 @@
 import { ReactNode, useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Utensils, LogOut, User, Menu, X, Moon, Sun } from 'lucide-react';
+import { Utensils, LogOut, User, Menu, X, Moon, Sun, MessageCircle, Mail, Phone } from 'lucide-react';
 import { auth } from '@/src/firebase';
 import { signOut } from 'firebase/auth';
 import { useUser } from '@/src/contexts/UserContext';
@@ -57,9 +57,9 @@ export default function Layout({ children }: LayoutProps) {
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center gap-8">
             <Link to="/" className="text-sm font-medium hover:text-sage transition-colors">Home</Link>
-            <Link to="/menu" className="text-sm font-medium hover:text-sage transition-colors">Menu</Link>
+            <Link to="/products" className="text-sm font-medium hover:text-sage transition-colors">Products</Link>
             {role === 'admin' && (
-              <Link to="/kitchen" className="text-sm font-medium hover:text-sage transition-colors">Kitchen</Link>
+              <Link to="/leads" className="text-sm font-medium hover:text-sage transition-colors">Leads</Link>
             )}
           </nav>
 
@@ -99,10 +99,10 @@ export default function Layout({ children }: LayoutProps) {
               </Link>
             )}
             <Link 
-              to="/menu" 
+              to="/products" 
               className="px-4 py-2 bg-sage text-gray-900 rounded-full text-sm font-medium hover:bg-opacity-80 transition-all"
             >
-              Order Now
+              Request Quote
             </Link>
           </div>
 
@@ -130,9 +130,9 @@ export default function Layout({ children }: LayoutProps) {
           <div className="md:hidden absolute top-16 left-0 w-full bg-white dark:bg-gray-900 border-b border-gray-100 dark:border-gray-800 shadow-lg py-4 px-4 flex flex-col gap-4">
             <nav className="flex flex-col gap-2">
               <Link to="/" onClick={() => setIsMobileMenuOpen(false)} className="px-4 py-3 text-base font-medium text-gray-800 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-xl transition-colors">Home</Link>
-              <Link to="/menu" onClick={() => setIsMobileMenuOpen(false)} className="px-4 py-3 text-base font-medium text-gray-800 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-xl transition-colors">Menu</Link>
+              <Link to="/products" onClick={() => setIsMobileMenuOpen(false)} className="px-4 py-3 text-base font-medium text-gray-800 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-xl transition-colors">Products</Link>
               {role === 'admin' && (
-                <Link to="/kitchen" onClick={() => setIsMobileMenuOpen(false)} className="px-4 py-3 text-base font-medium text-gray-800 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-xl transition-colors">Kitchen</Link>
+                <Link to="/leads" onClick={() => setIsMobileMenuOpen(false)} className="px-4 py-3 text-base font-medium text-gray-800 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-xl transition-colors">Leads</Link>
               )}
             </nav>
             
@@ -171,24 +171,40 @@ export default function Layout({ children }: LayoutProps) {
                 </Link>
               )}
               <Link 
-                to="/menu" 
+                to="/products" 
                 onClick={() => setIsMobileMenuOpen(false)}
                 className="mt-2 flex items-center justify-center px-4 py-3 bg-sage text-gray-900 rounded-xl text-base font-medium hover:bg-opacity-80 transition-all"
               >
-                Order Now
+                Request Quote
               </Link>
             </div>
           </div>
         )}
       </header>
-      <main className="flex-grow">
+      <main className="flex-grow pb-16 md:pb-0">
         {children}
       </main>
-      <footer className="bg-cream dark:bg-gray-900 border-t border-wood/20 dark:border-gray-800 py-12 transition-colors duration-200">
+      <footer className="bg-cream dark:bg-gray-900 border-t border-wood/20 dark:border-gray-800 py-12 transition-colors duration-200 mb-16 md:mb-0">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <p className="text-sm text-gray-500 dark:text-gray-400">© 2026 Ajwa Global. All rights reserved.</p>
         </div>
       </footer>
+
+      {/* Sticky Quick Action Bar (Mobile Only) */}
+      <div className="md:hidden fixed bottom-0 left-0 right-0 bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-800 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)] z-50 flex justify-around items-center p-3">
+        <a href="https://wa.me/1234567890" target="_blank" rel="noopener noreferrer" className="flex flex-col items-center gap-1 text-green-600 dark:text-green-500">
+          <MessageCircle className="w-6 h-6" />
+          <span className="text-[10px] font-medium uppercase">WhatsApp</span>
+        </a>
+        <a href="mailto:export@ajwaglobal.com" className="flex flex-col items-center gap-1 text-blue-600 dark:text-blue-500">
+          <Mail className="w-6 h-6" />
+          <span className="text-[10px] font-medium uppercase">Email</span>
+        </a>
+        <a href="tel:+1234567890" className="flex flex-col items-center gap-1 text-sage">
+          <Phone className="w-6 h-6" />
+          <span className="text-[10px] font-medium uppercase">Call</span>
+        </a>
+      </div>
     </div>
   );
 }

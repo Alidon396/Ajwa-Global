@@ -3,18 +3,15 @@ import { useNavigate } from 'react-router-dom';
 import { updateProfile } from 'firebase/auth';
 import { db, handleFirestoreError, OperationType } from '@/src/firebase';
 import { collection, query, where, orderBy, onSnapshot, Timestamp } from 'firebase/firestore';
-import { User, Mail, Save, ArrowLeft, Clock, ShoppingBag, CheckCircle2, ChefHat } from 'lucide-react';
+import { User, Mail, Save, ArrowLeft, Clock, ShoppingBag, CheckCircle2, FileText, AlertCircle } from 'lucide-react';
 import { useUser } from '@/src/contexts/UserContext';
 
-interface Order {
+interface RFQ {
   id: string;
-  table: string;
   items: { name: string; quantity: number; price: number }[];
   timestamp: Timestamp;
-  status: 'pending' | 'preparing' | 'done';
-  total: number;
-  paymentType?: 'prepaid' | 'postpaid';
-  orderType?: 'dine-in' | 'takeaway' | 'delivery';
+  status: 'pending' | 'reviewing' | 'quoted' | 'closed';
+  estimatedTotal: number;
 }
 
 export default function ProfilePage() {
@@ -22,8 +19,8 @@ export default function ProfilePage() {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [orders, setOrders] = useState<Order[]>([]);
-  const [ordersLoading, setOrdersLoading] = useState(true);
+  const [rfqs, setRfqs] = useState<RFQ[]>([]);
+  const [rfqsLoading, setRfqsLoading] = useState(true);
   const navigate = useNavigate();
 
   const { user, loading: userLoading } = useUser();
@@ -36,7 +33,7 @@ export default function ProfilePage() {
     } else {
       setDisplayName(user.displayName || '');
       
-      const path = 'orders';
+      const path = 'rfqs';
       const q = query(
         collection(db, path),
         where('userId', '==', user.uid),
@@ -44,15 +41,15 @@ export default function ProfilePage() {
       );
 
       const unsubscribe = onSnapshot(q, (snapshot) => {
-        const newOrders = snapshot.docs.map(doc => ({
+        const newRfqs = snapshot.docs.map(doc => ({
           id: doc.id,
           ...doc.data()
-        })) as Order[];
-        setOrders(newOrders);
-        setOrdersLoading(false);
+        })) as RFQ[];
+        setRfqs(newRfqs);
+        setRfqsLoading(false);
       }, (error) => {
         handleFirestoreError(error, OperationType.LIST, path);
-        setOrdersLoading(false);
+        setRfqsLoading(false);
       });
 
       return () => unsubscribe();
@@ -161,79 +158,67 @@ export default function ProfilePage() {
           </div>
         </div>
 
-        {/* Order History */}
+        {/* RFQ History */}
         <div className="md:col-span-2">
           <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8 border border-wood/10 dark:border-gray-700 h-full">
             <h3 className="text-xl font-serif font-bold text-gray-900 dark:text-white mb-6 flex items-center gap-2">
-              <ShoppingBag className="w-5 h-5 text-sage" /> Order History
+              <FileText className="w-5 h-5 text-sage" /> RFQ History
             </h3>
 
-            {ordersLoading ? (
+            {rfqsLoading ? (
               <div className="flex justify-center items-center py-12">
                 <div className="w-8 h-8 border-4 border-sage border-t-transparent rounded-full animate-spin" />
               </div>
-            ) : orders.length === 0 ? (
+            ) : rfqs.length === 0 ? (
               <div className="text-center py-12 text-gray-500 dark:text-gray-400">
-                <ShoppingBag className="w-12 h-12 mx-auto mb-4 opacity-20" />
-                <p>You haven't placed any orders yet.</p>
+                <FileText className="w-12 h-12 mx-auto mb-4 opacity-20" />
+                <p>You haven't submitted any RFQs yet.</p>
                 <button 
-                  onClick={() => navigate('/menu')}
+                  onClick={() => navigate('/products')}
                   className="mt-4 text-sage hover:underline font-medium"
                 >
-                  Browse Menu
+                  Browse Products
                 </button>
               </div>
             ) : (
               <div className="space-y-4">
-                {orders.map((order) => (
+                {rfqs.map((rfq) => (
                   <div 
-                    key={order.id} 
+                    key={rfq.id} 
                     className="border border-gray-100 dark:border-gray-700 rounded-xl p-5 hover:border-sage/30 transition-colors"
                   >
                     <div className="flex justify-between items-start mb-4">
                       <div>
                         <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 mb-1">
                           <Clock className="w-4 h-4" />
-                          {order.timestamp ? new Date(order.timestamp.toMillis()).toLocaleString() : 'Just now'}
+                          {rfq.timestamp ? new Date(rfq.timestamp.toMillis()).toLocaleString() : 'Just now'}
                         </div>
                         <p className="font-medium text-gray-900 dark:text-white">
-                          Table {order.table}
+                          RFQ ID: {rfq.id.slice(0, 8)}...
                         </p>
-                        <div className="flex gap-2 mt-2">
-                          {order.orderType && (
-                            <span className="px-2 py-0.5 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 text-[10px] font-bold uppercase rounded">
-                              {order.orderType}
-                            </span>
-                          )}
-                          {order.paymentType && (
-                            <span className={`px-2 py-0.5 text-[10px] font-bold uppercase rounded ${
-                              order.paymentType === 'prepaid' ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' : 'bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400'
-                            }`}>
-                              {order.paymentType}
-                            </span>
-                          )}
-                        </div>
                       </div>
                       <div className="text-right">
                         <span className={`inline-flex items-center gap-1 px-2 py-1 text-xs font-bold uppercase rounded-md ${
-                          order.status === 'done' ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' :
-                          order.status === 'preparing' ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400' :
+                          rfq.status === 'quoted' ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' :
+                          rfq.status === 'closed' ? 'bg-gray-100 text-gray-700 dark:bg-gray-900/30 dark:text-gray-400' :
+                          rfq.status === 'reviewing' ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400' :
                           'bg-sage/20 text-sage'
                         }`}>
-                          {order.status === 'done' && <CheckCircle2 className="w-3 h-3" />}
-                          {order.status === 'preparing' && <ChefHat className="w-3 h-3" />}
-                          {order.status === 'pending' && <Clock className="w-3 h-3" />}
-                          {order.status}
+                          {rfq.status === 'quoted' && <CheckCircle2 className="w-3 h-3" />}
+                          {rfq.status === 'closed' && <CheckCircle2 className="w-3 h-3" />}
+                          {rfq.status === 'reviewing' && <Clock className="w-3 h-3" />}
+                          {rfq.status === 'pending' && <AlertCircle className="w-3 h-3" />}
+                          {rfq.status}
                         </span>
                         <p className="font-serif font-bold text-lg mt-2 text-gray-900 dark:text-white">
-                          ${order.total.toFixed(2)}
+                          Est: ${rfq.estimatedTotal?.toFixed(2) || '0.00'}
                         </p>
                       </div>
                     </div>
                     
                     <div className="bg-gray-50 dark:bg-gray-700/30 rounded-lg p-4">
                       <ul className="space-y-2">
-                        {order.items.map((item, idx) => (
+                        {rfq.items.map((item, idx) => (
                           <li key={idx} className="flex justify-between text-sm">
                             <span className="text-gray-700 dark:text-gray-300">
                               <span className="font-medium text-gray-900 dark:text-white mr-2">{item.quantity}x</span>

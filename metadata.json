@@ -1,5 +1,5 @@
 {
-  "name": "Ajwa Global - Smart Venue & Birthday Experience",
-  "description": "A premium, AI-driven restaurant and event booking platform with QR table ordering and a real-time kitchen display system.",
+  "name": "Ajwa Global - B2B Export Platform",
+  "description": "A premium B2B global export platform for dates and commodities featuring dynamic product catalogs, RFQ carts, and lead management.",
   "requestFramePermissions": ["geolocation"]
 }
